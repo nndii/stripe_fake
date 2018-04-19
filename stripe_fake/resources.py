@@ -1,10 +1,13 @@
 import typing
 import datetime
+from faker import Faker
+
+fake = Faker()
 
 
 class SourceCard(typing.NamedTuple):
     id: str
-    client_secret: str
+    # client_secret: str
     status: str
     flow: str = 'receiver'  # TODO: I dunno what does it mean, lol
     object: str = 'source'
@@ -17,13 +20,25 @@ class SourceCard(typing.NamedTuple):
     usage: str = 'reusable'
     type: str = 'card'
 
+    def jsonify(self) -> typing.Mapping:
+        return {field: getattr(self, field) for field in self._fields}
+
 
 def fake_card(type: str) -> typing.Mapping:
     if type == 'three_ds_secure':
-        return dict()
+        return {
+            'three_d_secure': 'required'
+        }
     else:
-        return dict()
+        return {
+            'three_d_secure': 'optional'
+        }
 
 
 def fake_owner() -> typing.Mapping:
-    return dict()
+    return {
+        'address': fake.address(),
+        'email': fake.email(),
+        'name': fake.name(),
+        'phone': fake.phone()
+    }

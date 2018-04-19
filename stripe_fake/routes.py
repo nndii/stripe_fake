@@ -1,16 +1,21 @@
 from aiohttp import web
 import asyncio
-from stripe_fake.hooks import _create_source, _retrieve_source
+from stripe_fake.hooks import _create_source
 
 
 async def create_source(request: web.Request):
     body, status = await asyncio.shield(_create_source(request))
-    pass
+    return web.json_response(body, status=status)
 
 
 async def retrieve_source(request: web.Request):
     s_id = request.match_info.get('s_id', None)
-    body, status = await asyncio.shield(_retrieve_source(request))
+    try:
+        source = request.app['sources'][s_id]
+    except KeyError:
+        return web.Response(status=404)
+    else:
+        return web.json_response(source.jsonify(), status=200)
 
 
 def setup(app: web.Application):

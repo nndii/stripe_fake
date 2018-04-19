@@ -1,11 +1,10 @@
 import asyncio
 import logging
-import os
 import sys
 
 from aiohttp import web
-from stripe_fake.routes import setup
 
+from stripe_fake.routes import setup
 
 logging.basicConfig(
     level=logging.DEBUG,
