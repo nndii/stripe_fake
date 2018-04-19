@@ -16,5 +16,3 @@ async def _create_source(request: web.Request):
 
     request.app['sources'][source.id] = source
     return source.jsonify(), 200
-
-

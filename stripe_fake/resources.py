@@ -1,5 +1,6 @@
-import typing
 import datetime
+import typing
+
 from faker import Faker
 
 fake = Faker()
@@ -26,13 +27,9 @@ class SourceCard(typing.NamedTuple):
 
 def fake_card(type: str) -> typing.Mapping:
     if type == 'three_ds_secure':
-        return {
-            'three_d_secure': 'required'
-        }
+        return {'three_d_secure': 'required'}
     else:
-        return {
-            'three_d_secure': 'optional'
-        }
+        return {'three_d_secure': 'optional'}
 
 
 def fake_owner() -> typing.Mapping:
