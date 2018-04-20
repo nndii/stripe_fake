@@ -48,7 +48,7 @@ async def _create_charge(request: web.Request):
 
 async def _capture_charge(request: web.Request, c_id: str):
     try:
-        charge = request.app['sources'][c_id]
+        charge = request.app['charges'][c_id]
     except KeyError:
         return None, 404
 

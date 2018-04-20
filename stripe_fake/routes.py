@@ -30,7 +30,7 @@ async def retrieve_charge(request: web.Request):
 async def capture_charge(request: web.Request):
     c_id = request.match_info.get('c_id', None)
     body, status = await asyncio.shield(_capture_charge(request, c_id))
-    return web.json_response(body, status=200)
+    return web.json_response(body, status=status)
 
 
 def setup(app: web.Application):
