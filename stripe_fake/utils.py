@@ -14,8 +14,8 @@ def resource_id(prefix: str) -> str:
     return f"{prefix}_{uuid4()}"
 
 
-def fake_card(type: str) -> typing.Mapping:
-    if type == 'three_ds_secure':
+def fake_card(token: str) -> typing.Mapping:
+    if token == 'three_d_secure':
         return {'three_d_secure': 'required'}
     else:
         return {'three_d_secure': 'optional'}
