@@ -37,5 +37,5 @@ def fake_owner() -> typing.Mapping:
         'address': fake.address(),
         'email': fake.email(),
         'name': fake.name(),
-        'phone': fake.phone()
+        'phone': fake.phone_number()
     }

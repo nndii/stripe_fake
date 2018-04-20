@@ -21,5 +21,5 @@ async def retrieve_source(request: web.Request):
 
 
 def setup(app: web.Application):
-    app.router.add_post('/v1/sources/', create_source)
-    app.router.add_get('/v1/sources/{s_id}/', retrieve_source)
+    app.router.add_post('/v1/sources', create_source)
+    app.router.add_get('/v1/sources/{s_id}', retrieve_source)

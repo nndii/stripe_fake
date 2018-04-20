@@ -5,7 +5,7 @@ from stripe_fake.utils import source_id
 
 
 async def _create_source(request: web.Request):
-    params = await request.json()
+    params = await request.post()
 
     source = SourceCard(
         id=source_id(),
@@ -13,6 +13,8 @@ async def _create_source(request: web.Request):
         card=fake_card(params['token']),
         owner=fake_owner()
     )
+    request.app['log'].debug(f'SOURCE: {source}')
+    request.app['log'].debug(f'SOURCE: {source.jsonify()}')
 
     request.app['sources'][source.id] = source
     return source.jsonify(), 200
