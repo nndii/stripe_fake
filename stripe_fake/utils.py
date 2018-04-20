@@ -41,7 +41,7 @@ async def signed_request(url: str, data: typing.Mapping, secret: str) -> request
         secret.encode('utf-8'),
         signed_payload.encode('utf-8'),
         digestmod=hashlib.sha256
-    ).digest()
+    ).hexdigest()
 
     prepped.headers['Stripe-Signature'] = f't={timestamp},v1={signature}'
 
