@@ -58,3 +58,15 @@ class BalanceTransaction(typing.NamedTuple):
 
     def jsonify(self) -> typing.Mapping:
         return {field: getattr(self, field) for field in self._fields}
+
+
+class WebhookCaptured(typing.NamedTuple):
+    id: str
+    type: str = 'charge.captured'
+    pending_webhooks: int = 0
+    data: typing.Mapping = dict()
+    created: int = int(datetime.datetime.utcnow().timestamp())
+    object: str = 'event'
+
+    def jsonify(self) -> typing.Mapping:
+        return {field: getattr(self, field) for field in self._fields}

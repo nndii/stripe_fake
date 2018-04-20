@@ -1,7 +1,7 @@
 from aiohttp import web
 
-from stripe_fake.resources import SourceCard, Charge, BalanceTransaction
-from stripe_fake.utils import resource_id, fake_owner, fake_card
+from stripe_fake.resources import SourceCard, Charge, BalanceTransaction, WebhookCaptured
+from stripe_fake.utils import resource_id, fake_owner, fake_card, signed_request
 import json
 
 
@@ -14,8 +14,8 @@ async def _create_source(request: web.Request):
         card=fake_card(params['token']),
         owner=fake_owner()
     )
-    request.app['log'].debug(f'SOURCE: {source}')
-    request.app['log'].debug(f'SOURCE: {source.jsonify()}')
+    request.app['log'](f'SOURCE: {source}')
+    request.app['log'](f'SOURCE: {source.jsonify()}')
 
     request.app['sources'][source.id] = source
     return source.jsonify(), 200
@@ -54,8 +54,8 @@ async def _create_charge(request: web.Request):
     request.app['transactions'][balance_transaction.id] = balance_transaction
     charge = charge._replace(balance_transaction=balance_transaction.id)
 
-    request.app['log'].debug(f'SOURCE: {charge}')
-    request.app['log'].debug(f'SOURCE: {charge.jsonify()}')
+    request.app['log'](f'SOURCE: {charge}')
+    request.app['log'](f'SOURCE: {charge.jsonify()}')
 
     request.app['charges'][charge.id] = charge
     return charge.jsonify(), 200
@@ -69,5 +69,22 @@ async def _capture_charge(request: web.Request, c_id: str):
 
     charge = charge._replace(captured=True)
     request.app['charges'][charge.id] = charge
-
+    request.app['capture_webhook'].put(charge)
     return charge.jsonify(), 200
+
+
+async def process_captured_webhook(app: web.Application, charge: Charge):
+    event = WebhookCaptured(
+        id=resource_id('evt'),
+        data={
+            'object': charge.jsonify()
+        }
+    )
+
+    result = await signed_request(
+        app['webhook_url'],
+        event.jsonify(),
+        app['webhook_secret'],
+    )
+
+    app['log'](f'Captured Webhook Result: {result} -> {result.content}')

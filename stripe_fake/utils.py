@@ -1,6 +1,10 @@
 from uuid import uuid4
 from faker import Faker
 import typing
+import requests
+import hashlib
+import hmac
+from datetime import datetime
 
 fake = Faker()
 
@@ -23,3 +27,22 @@ def fake_owner() -> typing.Mapping:
         'name': fake.name(),
         'phone': fake.phone_number()
     }
+
+
+async def signed_request(url: str, data: typing.Mapping, secret: str) -> requests.Response:
+    headers = {'Stripe-Signature': ''}
+    request_ = requests.Request('POST', url, json=data, headers=headers)
+    prepped = request_.prepare()
+
+    timestamp = int(datetime.utcnow().timestamp())
+    signed_payload = f'{timestamp}.{prepped.body.decode("utf-8")}'
+    signature = hmac.new(
+        secret,
+        signed_payload.encode('utf-8'),
+        digestmod=hashlib.sha256
+    ).digest()
+
+    prepped.headers['Stripe-Signature'] = f't={timestamp},v1={signature}'
+
+    with requests.Session() as s:
+        return s.send(prepped)
