@@ -33,9 +33,16 @@ async def capture_charge(request: web.Request):
     return web.json_response(body, status=status)
 
 
+async def retrieve_transaction(request: web.Request):
+    t_id = request.match_info.get('t_id', None)
+    transaction = request.app['transactions'][t_id]
+    return web.json_response(transaction.jsonify(), status=200)
+
+
 def setup(app: web.Application):
     app.router.add_post('/v1/sources', create_source)
     app.router.add_post('/v1/charges', create_charge)
     app.router.add_get('/v1/sources/{s_id}', retrieve_source)
     app.router.add_get('/v1/charges/{c_id}', retrieve_charge)
     app.router.add_post('/v1/charges/{c_id}/capture', capture_charge)
+    app.router.add_get('/v1/balance/history/{t_id}', retrieve_transaction)

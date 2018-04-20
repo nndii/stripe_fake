@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from stripe_fake.resources import SourceCard, Charge
+from stripe_fake.resources import SourceCard, Charge, BalanceTransaction
 from stripe_fake.utils import resource_id, fake_owner, fake_card
 import json
 
@@ -38,6 +38,21 @@ async def _create_charge(request: web.Request):
         metadata=json.loads(params.get('metadata', '{}')),
         source={"id": source.id, "object": source.object}
     )
+
+    balance_transaction = BalanceTransaction(
+        id=resource_id('txn'),
+        status='pending',
+        amount=charge.amount,
+        currency=charge.currency,
+        source=charge.id,
+        fee=charge.amount*0.05,
+        net=charge.amount-charge.amount*0.05,
+        fee_details=[{"amount": charge.amount*0.05,
+                      "type": "stripe_fee",
+                      "currency": charge.currency}]
+    )
+    request.app['transactions'][balance_transaction.id] = balance_transaction
+    charge = charge._replace(balance_transaction=balance_transaction.id)
 
     request.app['log'].debug(f'SOURCE: {charge}')
     request.app['log'].debug(f'SOURCE: {charge.jsonify()}')

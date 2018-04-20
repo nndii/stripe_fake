@@ -29,7 +29,7 @@ class Charge(typing.NamedTuple):
     amount: float
     description: str
     paid: bool = True
-    balance_transaction: str = 'PRIVET'
+    balance_transaction: str = ''
     object: str = 'charge'
     captured: bool = False
     refunded: bool = False
@@ -37,9 +37,24 @@ class Charge(typing.NamedTuple):
     metadata: typing.Mapping = dict()
     refunds: typing.Mapping = dict()
     amount_refunded: float = 0
-    currency: str = 'rub'
+    currency: str = 'RUB'
     created: int = int(datetime.datetime.utcnow().timestamp())
 
     def jsonify(self) -> typing.Mapping:
         return {field: getattr(self, field) for field in self._fields}
 
+
+class BalanceTransaction(typing.NamedTuple):
+    id: str
+    status: str
+    amount: float
+    fee: float
+    net: float
+    source: str
+    fee_details: typing.Sequence = []
+    type: str = 'charge'
+    object: str = 'balance_transaction'
+    currency: str = 'RUB'
+
+    def jsonify(self) -> typing.Mapping:
+        return {field: getattr(self, field) for field in self._fields}
