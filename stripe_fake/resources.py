@@ -6,7 +6,7 @@ class SourceCard(typing.NamedTuple):
     id: str
     # client_secret: str
     status: str
-    flow: str = 'receiver'  # TODO: I dunno what does it mean, lol
+    flow: str = 'receiver'
     object: str = 'source'
     metadata: typing.Mapping = dict()
     receiver: typing.Mapping = dict()
@@ -16,6 +16,9 @@ class SourceCard(typing.NamedTuple):
     currency: str = 'rub'
     usage: str = 'reusable'
     type: str = 'card'
+    three_d_secure: typing.Mapping = dict()
+    redirect: typing.Mapping = dict()
+    amount: int = 0
 
     def jsonify(self) -> typing.Mapping:
         return {field: getattr(self, field) for field in self._fields}
