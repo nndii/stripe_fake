@@ -44,3 +44,15 @@ async def _create_charge(request: web.Request):
 
     request.app['charges'][charge.id] = charge
     return charge.jsonify(), 200
+
+
+async def _capture_charge(request: web.Request, c_id: str):
+    try:
+        charge = request.app['sources'][c_id]
+    except KeyError:
+        return None, 404
+
+    charge = charge._replace(captured=True)
+    request.app['charges'][charge.id] = charge
+
+    return charge.jsonify(), 200

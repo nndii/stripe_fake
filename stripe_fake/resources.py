@@ -42,3 +42,4 @@ class Charge(typing.NamedTuple):
 
     def jsonify(self) -> typing.Mapping:
         return {field: getattr(self, field) for field in self._fields}
+
