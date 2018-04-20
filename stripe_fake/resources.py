@@ -1,8 +1,6 @@
 import datetime
 import typing
 
-from faker import Faker
-
 
 class SourceCard(typing.NamedTuple):
     id: str

@@ -1,10 +1,11 @@
-from uuid import uuid4
-from faker import Faker
-import typing
-import requests
 import hashlib
 import hmac
+import typing
 from datetime import datetime
+from uuid import uuid4
+
+import requests
+from faker import Faker
 
 fake = Faker()
 
@@ -37,7 +38,7 @@ async def signed_request(url: str, data: typing.Mapping, secret: str) -> request
     timestamp = int(datetime.utcnow().timestamp())
     signed_payload = f'{timestamp}.{prepped.body.decode("utf-8")}'
     signature = hmac.new(
-        secret,
+        secret.encode('utf-8'),
         signed_payload.encode('utf-8'),
         digestmod=hashlib.sha256
     ).digest()

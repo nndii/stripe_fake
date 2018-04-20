@@ -1,13 +1,13 @@
 import asyncio
 import logging
-import sys
 import os
+import sys
+from queue import Queue
 
 from aiohttp import web
 
-from stripe_fake.routes import setup
 from stripe_fake.hooks import process_capture_webhook
-from queue import Queue
+from stripe_fake.routes import setup
 
 logging.basicConfig(
     level=logging.DEBUG,

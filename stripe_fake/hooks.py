@@ -1,8 +1,9 @@
+import json
+
 from aiohttp import web
 
 from stripe_fake.resources import SourceCard, Charge, BalanceTransaction, WebhookCaptured
 from stripe_fake.utils import resource_id, fake_owner, fake_card, signed_request
-import json
 
 
 async def _create_source(request: web.Request):
@@ -45,9 +46,9 @@ async def _create_charge(request: web.Request):
         amount=charge.amount,
         currency=charge.currency,
         source=charge.id,
-        fee=int(charge.amount*0.1),
-        net=int(charge.amount-charge.amount*0.1),
-        fee_details=[{"amount": int(charge.amount*0.1),
+        fee=int(charge.amount * 0.1),
+        net=int(charge.amount - charge.amount * 0.1),
+        fee_details=[{"amount": int(charge.amount * 0.1),
                       "type": "stripe_fee",
                       "currency": charge.currency}]
     )
