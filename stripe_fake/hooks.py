@@ -73,7 +73,7 @@ async def _capture_charge(request: web.Request, c_id: str):
     return charge.jsonify(), 200
 
 
-async def process_captured_webhook(app: web.Application, charge: Charge):
+async def process_capture_webhook(app: web.Application, charge: Charge):
     event = WebhookCaptured(
         id=resource_id('evt'),
         data={
