@@ -30,6 +30,15 @@ def fake_owner() -> typing.Mapping:
     }
 
 
+def parse_params(prefix: str, params: typing.Mapping) -> typing.Mapping:
+    result = {}
+    for key, value in params.items():
+        if key.startswith(prefix):
+            name = key.strip(prefix)[1:-1]
+            result[name] = value
+    return result
+
+
 async def signed_request(url: str, data: typing.Mapping, secret: str) -> requests.Response:
     headers = {'Stripe-Signature': ''}
     request_ = requests.Request('POST', url, json=data, headers=headers)
@@ -47,3 +56,4 @@ async def signed_request(url: str, data: typing.Mapping, secret: str) -> request
 
     with requests.Session() as s:
         return s.send(prepped)
+

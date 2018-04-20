@@ -3,20 +3,23 @@ import json
 from aiohttp import web
 
 from stripe_fake.resources import SourceCard, Charge, BalanceTransaction, WebhookCaptured
-from stripe_fake.utils import resource_id, fake_owner, fake_card, signed_request
+from stripe_fake.utils import resource_id, fake_owner, fake_card, signed_request, parse_params
 
 
 async def _create_source(request: web.Request):
     params = await request.post()
+    metadata = parse_params('metadata', params)
+    redirect = parse_params('redirect', params)
+    three_d_secure = parse_params('three_d_secure', params)
     if params.get('type', None) == 'three_d_secure':
         source = SourceCard(
             id=resource_id('src'),
             amount=int(params['amount']),
             currency=params['currency'],
             flow='redirect',
-            redirect=json.loads(params.get('redirect', '{}')),
-            metadata=json.loads(params.get('metadata', '{}')),
-            three_d_secure=json.loads(params.get('three_d_secure', '{}')),
+            redirect=redirect,
+            metadata=metadata,
+            three_d_secure=three_d_secure,
             type='three_d_secure',
             status='pending',
             owner=fake_owner()
@@ -48,13 +51,14 @@ async def _create_charge(request: web.Request):
     except KeyError:
         return None, 404
 
+    metadata = parse_params('metadata', params)
     charge = Charge(
         id=resource_id('ch'),
         status='pending',
         amount=int(params.get('amount')),
         currency=params.get('currency'),
         description=params.get('description'),
-        metadata=json.loads(params.get('metadata', '{}')),
+        metadata=metadata,
         source={"id": source.id, "object": source.object}
     )
 
