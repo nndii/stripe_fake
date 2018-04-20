@@ -20,6 +20,7 @@ def create_app() -> web.Application:
     setup(app)
 
     app['sources'] = dict()
+    app['charges'] = dict()
     app['log'] = log
 
     return app

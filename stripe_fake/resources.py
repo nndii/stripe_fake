@@ -3,8 +3,6 @@ import typing
 
 from faker import Faker
 
-fake = Faker()
-
 
 class SourceCard(typing.NamedTuple):
     id: str
@@ -25,17 +23,22 @@ class SourceCard(typing.NamedTuple):
         return {field: getattr(self, field) for field in self._fields}
 
 
-def fake_card(type: str) -> typing.Mapping:
-    if type == 'three_ds_secure':
-        return {'three_d_secure': 'required'}
-    else:
-        return {'three_d_secure': 'optional'}
+class Charge(typing.NamedTuple):
+    id: str
+    status: str
+    amount: float
+    description: str
+    paid: bool = True
+    balance_transaction: str = 'PRIVET'
+    object: str = 'charge'
+    captured: bool = False
+    refunded: bool = False
+    source: typing.Mapping = dict()
+    metadata: typing.Mapping = dict()
+    refunds: typing.Mapping = dict()
+    amount_refunded: float = 0
+    currency: str = 'rub'
+    created: int = int(datetime.datetime.utcnow().timestamp())
 
-
-def fake_owner() -> typing.Mapping:
-    return {
-        'address': fake.address(),
-        'email': fake.email(),
-        'name': fake.name(),
-        'phone': fake.phone_number()
-    }
+    def jsonify(self) -> typing.Mapping:
+        return {field: getattr(self, field) for field in self._fields}
