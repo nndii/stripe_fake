@@ -45,9 +45,9 @@ async def _create_charge(request: web.Request):
         amount=charge.amount,
         currency=charge.currency,
         source=charge.id,
-        fee=charge.amount*0.05,
-        net=charge.amount-charge.amount*0.05,
-        fee_details=[{"amount": charge.amount*0.05,
+        fee=int(charge.amount*0.1),
+        net=int(charge.amount-charge.amount*0.1),
+        fee_details=[{"amount": int(charge.amount*0.1),
                       "type": "stripe_fee",
                       "currency": charge.currency}]
     )

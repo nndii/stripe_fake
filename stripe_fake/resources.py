@@ -26,7 +26,7 @@ class SourceCard(typing.NamedTuple):
 class Charge(typing.NamedTuple):
     id: str
     status: str
-    amount: float
+    amount: int
     description: str
     paid: bool = True
     balance_transaction: str = ''
@@ -47,9 +47,9 @@ class Charge(typing.NamedTuple):
 class BalanceTransaction(typing.NamedTuple):
     id: str
     status: str
-    amount: float
-    fee: float
-    net: float
+    amount: int
+    fee: int
+    net: int
     source: str
     fee_details: typing.Sequence = []
     type: str = 'charge'
