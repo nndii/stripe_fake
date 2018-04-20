@@ -32,7 +32,7 @@ async def _create_charge(request: web.Request):
     charge = Charge(
         id=resource_id('ch'),
         status='pending',
-        amount=params.get('amount'),
+        amount=int(params.get('amount')),
         currency=params.get('currency'),
         description=params.get('description'),
         metadata=json.loads(params.get('metadata', '{}')),
