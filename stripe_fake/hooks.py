@@ -109,7 +109,7 @@ async def process_capture_webhook(app: web.Application, charge: Charge):
     app['log'](f'Captured Webhook Result: {result} -> {result.content}')
 
 
-async def process_chargeable_webhook(app: web.Application, source: SourceCard):
+async def process_to_chargeable(app: web.Application, source: SourceCard):
     source = source._replace(status='chargeable')
     app['sources'][source.id] = source
     event = WebhookCaptured(
