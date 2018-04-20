@@ -8,6 +8,7 @@ from aiohttp import web
 
 from stripe_fake.hooks import process_capture_webhook, process_to_chargeable
 from stripe_fake.routes import setup
+from stripe_fake.utils import signed_request
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -38,15 +39,28 @@ async def to_chargeable_task(app: web.Application):
         app['log']('Cancel chargeable webhook listener..')
 
 
+async def request_task(app: web.Application):
+    try:
+        await asyncio.sleep(0.01)
+        while True:
+            if not app['request_queue'].empty():
+                await signed_request(**app['request_queue'].get())
+            await asyncio.sleep(0.02)
+    except asyncio.CancelledError:
+        app['log']('Cancel request task listener..')
+
+
 async def start_bg_tasks(app: web.Application):
     app['captured_task_'] = app.loop.create_task(captured_task(app))
     app['to_chargeable_task_'] = app.loop.create_task(to_chargeable_task(app))
+    app['request_task_'] = app.loop.create_task(request_task(app))
 
 
 async def cleanup_bg_tasks(app: web.Application):
     app['log']('cleanup background tasks')
     app['captured_task_'].cancel()
     app['to_chargeable_task_'].cancel()
+    app['request_task_'].cancel()
 
 
 def create_app() -> web.Application:
@@ -65,6 +79,7 @@ def create_app() -> web.Application:
     app['transactions'] = dict()
     app['capture_webhook'] = Queue()
     app['to_chargeable'] = Queue()
+    app['request_queue'] = Queue()
     app['log'] = log.debug
 
     app.on_startup.append(start_bg_tasks)

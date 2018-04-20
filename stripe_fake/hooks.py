@@ -1,4 +1,5 @@
-import json
+
+import asyncio
 
 from aiohttp import web
 
@@ -34,7 +35,6 @@ async def _create_source(request: web.Request):
 
     request.app['log'](f'SOURCE: {source}')
     request.app['log'](f'SOURCE: {source.jsonify()}')
-
     request.app['sources'][source.id] = source
 
     if source.type == 'three_d_secure':
@@ -46,10 +46,10 @@ async def _create_source(request: web.Request):
 async def _create_charge(request: web.Request):
     params = await request.post()
 
-    try:
-        source = request.app['sources'][params.get('source')]
-    except KeyError:
-        return None, 404
+    # try:
+    #     source = request.app['sources'][params['source']]
+    # except KeyError:
+    #     return None, 404
 
     metadata = parse_params('metadata', params)
     charge = Charge(
@@ -59,7 +59,7 @@ async def _create_charge(request: web.Request):
         currency=params.get('currency'),
         description=params.get('description'),
         metadata=metadata,
-        source={"id": source.id, "object": source.object}
+        source={'id': params['source'], 'object': 'source'}
     )
 
     balance_transaction = BalanceTransaction(
@@ -74,6 +74,7 @@ async def _create_charge(request: web.Request):
                       "type": "stripe_fee",
                       "currency": charge.currency}]
     )
+
     request.app['transactions'][balance_transaction.id] = balance_transaction
     charge = charge._replace(balance_transaction=balance_transaction.id)
 
@@ -93,6 +94,7 @@ async def _capture_charge(request: web.Request, c_id: str):
     charge = charge._replace(captured=True)
     request.app['charges'][charge.id] = charge
     request.app['capture_webhook'].put(charge)
+
     return charge.jsonify(), 200
 
 
@@ -104,18 +106,17 @@ async def process_capture_webhook(app: web.Application, charge: Charge):
         }
     )
 
-    result = await signed_request(
-        app['webhook_url'],
-        event.jsonify(),
-        app['webhook_secret'],
-    )
-
-    app['log'](f'Captured Webhook Result: {result} -> {result.content}')
+    app['request_queue'].put({
+        'url': app['webhook_url'],
+        'data': event.jsonify(),
+        'secret': app['webhook_secret']
+    })
 
 
 async def process_to_chargeable(app: web.Application, source: SourceCard):
     source = source._replace(status='chargeable')
     app['sources'][source.id] = source
+
     event = WebhookCaptured(
         id=resource_id('evt'),
         data={
@@ -124,10 +125,9 @@ async def process_to_chargeable(app: web.Application, source: SourceCard):
         type='source.chargeable'
     )
 
-    result = await signed_request(
-        app['webhook_url'],
-        event.jsonify(),
-        app['webhook_secret'],
-    )
+    app['request_queue'].put({
+        'url': app['webhook_url'],
+        'data': event.jsonify(),
+        'secret': app['webhook_secret']
+    })
 
-    app['log'](f'Captured Webhook Result: {result} -> {result.content}')
