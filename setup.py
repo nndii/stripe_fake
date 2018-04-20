@@ -13,5 +13,5 @@ setup(
     url='https://github.com/nndii/stripe_fake',
     keywords=['ticketscloud', 'stripe'],
     packages=['stripe_fake'],
-    install_requires=['aiohttp', 'requests'],
+    install_requires=['aiohttp', 'requests', 'faker'],
 )
